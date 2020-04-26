@@ -38,6 +38,8 @@ extern unsigned char *siheap;
 extern size_t siheap_size;
 #endif
 
+extern bool siheap_sweeping;
+
 typedef address_t heapaddress_t;
 #define SINTER_HEAPREF(addr) (siheap + addr)
 #ifdef SINTER_DEBUG_MEMORY_CHECK
@@ -235,7 +237,7 @@ SINTER_INLINEIFC siheap_header_t *siheap_malloc(address_t size, siheap_type_t ty
 
 void siheap_mdestroy(siheap_header_t *ent);
 
-SINTER_INLINE void siheap_mfree_inner(siheap_header_t *ent) {
+SINTER_INLINE siheap_header_t *siheap_mfree_inner(siheap_header_t *ent) {
   assert(ent->size >= sizeof(siheap_free_t));
   if (ent->type & 0x8000) {
     SIBUGM("Freeing marked object\n");
@@ -253,6 +255,8 @@ SINTER_INLINE void siheap_mfree_inner(siheap_header_t *ent) {
     prev->size = prev->size + ent->size + next->size;
     siheap_fix_next(prev);
     siheap_free_remove((siheap_free_t *) next);
+
+    return prev;
   } else if (next_free) {
     // we have        [ent][free]
     // we'll merge to [free     ]
@@ -271,12 +275,16 @@ SINTER_INLINE void siheap_mfree_inner(siheap_header_t *ent) {
 
     siheap_free_fix_neighbours(entf);
     siheap_fix_next(ent);
+
+    return ent;
   } else if (prev_free) {
     // we have        [free][ent]
     // we'll merge to [free     ]
 
     prev->size = prev->size + ent->size;
     siheap_fix_next(prev);
+
+    return prev;
   } else {
     // create a new free entry
     siheap_free_t *const entf = (siheap_free_t *) ent;
@@ -286,14 +294,16 @@ SINTER_INLINE void siheap_mfree_inner(siheap_header_t *ent) {
     entf->next_free = siheap_first_free;
     assert(entf->next_free != entf);
     siheap_free_fix_neighbours(entf);
+
+    return ent;
   }
 }
 
-SINTER_INLINE void siheap_mfree(siheap_header_t *ent) {
+SINTER_INLINE siheap_header_t *siheap_mfree(siheap_header_t *ent) {
   assert(ent->refcount == 0);
   assert(ent->type != sitype_free);
   siheap_mdestroy(ent);
-  siheap_mfree_inner(ent);
+  return siheap_mfree_inner(ent);
 }
 
 siheap_header_t *siheap_mrealloc(siheap_header_t *ent, address_t newsize);
@@ -301,15 +311,14 @@ siheap_header_t *siheap_mrealloc(siheap_header_t *ent, address_t newsize);
 SINTER_INLINE void siheap_deref(void *vent) {
   assert(vent);
   siheap_header_t *ent = (siheap_header_t *) vent;
-  assert(ent->refcount > 0);
-  assert(ent->type != sitype_free);
+  assert(ent->refcount > 0 || siheap_sweeping);
+  assert(ent->type != sitype_free || siheap_sweeping);
 
   if (ent->refcount) {
     ent->refcount -= 1;
-  }
-
-  if (!ent->refcount) {
-    siheap_mfree(ent);
+    if (!ent->refcount && ent->type != sitype_free) {
+      siheap_mfree(ent);
+    }
   }
 }
 
