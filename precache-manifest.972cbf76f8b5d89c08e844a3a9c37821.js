@@ -4,15 +4,15 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "assets/icon.png"
   },
   {
-    "revision": "02dbdbaa3e2a5606a1b9",
-    "url": "bundle.02dbd.js"
-  },
-  {
-    "revision": "02dbdbaa3e2a5606a1b9",
+    "revision": "d2bdc7ebdd298fd6955c",
     "url": "bundle.3277c.css"
   },
   {
-    "revision": "49658f500a1573d90a8f12f4471aa14e",
+    "revision": "d2bdc7ebdd298fd6955c",
+    "url": "bundle.d2bdc.js"
+  },
+  {
+    "revision": "e85161b7003d57a2bd97f2fa59f9f82e",
     "url": "index.html"
   },
   {
@@ -24,7 +24,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "sw-debug.js"
   },
   {
-    "revision": "7ecee33a5bdcdc3340b2805465dd8e8a",
+    "revision": "adb86e8e046cb09dbb43cbd6629a0dd3",
     "url": "sw-esm.js"
   },
   {
