@@ -1,0 +1,23 @@
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <http://feross.org>
+ * @license  MIT
+ */
+
+/*! https://mths.be/punycode v1.4.1 by @mathias */
+
+/**
+ * gpu.js
+ * http://gpu.rocks/
+ *
+ * GPU Accelerated JavaScript
+ *
+ * @version 2.9.3
+ * @date Wed Apr 01 2020 07:53:27 GMT-0400 (Eastern Daylight Time)
+ *
+ * @license MIT
+ * The MIT License
+ *
+ * Copyright (c) 2020 gpu.js Team
+ */
